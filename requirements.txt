@@ -1,9 +1,4 @@
 flask
 flask-cors
-langchain
-langchain-community
-langchain-core
-langchain-groq
-chromadb
-sentence-transformers
+groq
 gunicorn
