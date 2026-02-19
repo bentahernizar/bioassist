@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>BioAssist - Dépannage MSV-1000</title>
+    <style>
+        body { font-family: Arial; background: #0f172a; color: white; margin: 0; padding: 20px; }
+        h1 { color: #38bdf8; text-align: center; }
+        #chat-box { background: #1e293b; border-radius: 10px; padding: 20px; height: 400px; overflow-y: auto; margin: 20px 0; }
+        .user-msg { background: #2563eb; padding: 10px; border-radius: 8px; margin: 5px 0; }
+        .bot-msg { background: #166534; padding: 10px; border-radius: 8px; margin: 5px 0; }
+        .source { font-size: 12px; color: #94a3b8; margin-top: 5px; }
+        #input-area { display: flex; gap: 10px; }
+        #input { flex: 1; padding: 12px; border-radius: 8px; border: none; font-size: 16px; }
+        button { background: #2563eb; color: white; padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; }
+        button:hover { background: #1d4ed8; }
+    </style>
+</head>
+<body>
+    <h1>🏥 BioAssist - Assistant Dépannage MSV-1000</h1>
+    
+    <div id="chat-box">
+        <div class="bot-msg">👋 Bonjour ! Décrivez la panne ou le code erreur du MSV-1000.</div>
+    </div>
+
+    <div id="input-area">
+        <input id="input" type="text" placeholder="Ex: écran noir, ERR 01, LED rouge..."/>
+        <button onclick="envoyer()">Envoyer</button>
+    </div>
+
+    <script>
+        // ⬇️ METS TON URL NGROK ICI (tu la copies depuis Colab)
+        const API_URL = "https://bioassist.onrender.com/cha";
+
+        async function envoyer() {
+            const input = document.getElementById('input');
+            const chatBox = document.getElementById('chat-box');
+            const question = input.value.trim();
+
+            if (!question) return;
+
+            // Afficher la question de l'utilisateur
+            chatBox.innerHTML += `<div class="user-msg">❓ ${question}</div>`;
+            input.value = '';
+            chatBox.innerHTML += `<div class="bot-msg" id="loading">⏳ Recherche en cours...</div>`;
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            try {
+                const res = await fetch(API_URL, {
+    method: 'POST',
+    headers: { 
+        'Content-Type': 'application/json',
+        'ngrok-skip-browser-warning': 'true'
+    },
+    body: JSON.stringify({ message: question })
+});
+
+                const data = await res.json();
+
+                // Supprimer le "chargement"
+                document.getElementById('loading').remove();
+
+                // Afficher la réponse + source
+                chatBox.innerHTML += `
+                    <div class="bot-msg">
+                        🤖 ${data.response}
+                        <div class="source">📚 ${data.source}</div>
+                    </div>`;
+
+            } catch (err) {
+                document.getElementById('loading').remove();
+                chatBox.innerHTML += `<div class="bot-msg">❌ Erreur de connexion. Vérifiez l'URL ngrok.</div>`;
+            }
+
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        // Envoyer avec la touche Entrée
+        document.getElementById('input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') envoyer();
+        });
+    </script>
+</body>
+</html>
