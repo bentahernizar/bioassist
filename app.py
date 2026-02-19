@@ -58,22 +58,9 @@ def chat():
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 10000))
     app.run(host='0.0.0.0', port=port, debug=False)
-```
 
----
 
-## Remplace `requirements.txt` par :
-```
-flask
-flask-cors
-groq
-gunicorn
-```
 
----
 
-## Sur Render → Settings, Start Command :
-```
-gunicorn app:app --bind 0.0.0.0:10000 --timeout 120 --workers 1
 
 
